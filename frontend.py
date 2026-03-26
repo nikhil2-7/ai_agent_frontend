@@ -9,8 +9,8 @@ st.set_page_config(
     initial_sidebar_state="expanded",
 )
 
-API_URL = "https://ai-agent-using-groq-1.onrender.com/chat"
-HISTORY_URL = "https://ai-agent-using-groq-1.onrender.com/history"
+API_URL = "https://ai-agent-backend-o0q4.onrender.com/chat"
+HISTORY_URL = "https://ai-agent-backend-o0q4.onrender.com/history"
 
 # ── Session state ─────────────────────────────────────────────────────────────
 if "messages" not in st.session_state:
