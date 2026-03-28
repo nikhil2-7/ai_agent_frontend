@@ -9,8 +9,8 @@ st.set_page_config(
     initial_sidebar_state="expanded",
 )
 
-API_URL = "https://ai-agent-using-groq-1.onrender.com/chat"
-HISTORY_URL = "https://ai-agent-using-groq-1.onrender.com/history"
+API_URL = "https://ai-agent-backend-o0q4.onrender.com/chat"
+HISTORY_URL = "https://ai-agent-backend-o0q4.onrender.com/history"
 
 # ── Session state ─────────────────────────────────────────────────────────────
 if "messages" not in st.session_state:
@@ -24,14 +24,6 @@ if "history_cache" not in st.session_state:
         st.session_state.history_cache = requests.get(HISTORY_URL).json()
     except:
         st.session_state.history_cache = []
-
-# ✅ NEW — For auto clearing input after send
-if "input_text" not in st.session_state:
-    st.session_state.input_text = ""
-
-# ✅ NEW — Flag to trigger send on Enter
-if "trigger_send" not in st.session_state:
-    st.session_state.trigger_send = False
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # SIDEBAR
@@ -114,21 +106,20 @@ for msg in st.session_state.messages:
 
 st.markdown("---")
 
-# ✅ CHANGED — st.text_input instead of text_area (Enter to send works)
-user_input = st.text_input(
+# ── Text Input ────────────────────────────────────────────────────────────────
+user_input = st.text_area(
     "Your message",
-    placeholder="Type your message and press Enter…",
+    placeholder="Type your message here…",
+    height=80,
     label_visibility="collapsed",
-    value=st.session_state.input_text,
-    key="input_box"
 )
 
-# ✅ NEW — Enter to send (text_input triggers rerun on Enter automatically)
-send = st.button("📨 Send", use_container_width=True)
+col1, col2 = st.columns([5, 1])
 
-# ✅ Trigger send if Enter pressed (input changed and not empty)
-if user_input and user_input != st.session_state.input_text:
-    send = True
+with col1:
+    send = st.button("📨 Send", use_container_width=True)
+
+
 
 # ── Handle Send ───────────────────────────────────────────────────────────────
 if send:
@@ -169,8 +160,6 @@ if send:
                         "text": "🖼 Image Generated Below:"
                     })
                     st.image(data.get("content"))
-                    # ✅ Clear input before rerun
-                    st.session_state.input_text = ""
                     st.rerun()
 
                 else:
@@ -186,13 +175,10 @@ if send:
             "role": "ai",
             "text": ai_reply
         })
-
         # Refresh history from backend
         try:
             st.session_state.history_cache = requests.get(HISTORY_URL).json()
         except:
             pass
 
-        # ✅ Auto clear input after send
-        st.session_state.input_text = ""
         st.rerun()
