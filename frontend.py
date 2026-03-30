@@ -13,15 +13,18 @@ API_URL = "https://ai-agent-backend-o0q4.onrender.com/chat"
 HISTORY_URL = "https://ai-agent-backend-o0q4.onrender.com/history"
 
 #new change automatic call backend
+#automatically awake bakend new feature
+import threading
 import time
 
-BASE_URL = "https://ai-agent-backend-o0q4.onrender.com"
+BASE_URL = "https://ai-agent-using-groq-1.onrender.com"
 
 def wake_backend():
     try:
         requests.get(BASE_URL, timeout=10)
     except:
         pass
+#end 
 
 # Wake backend once when app loads
 if "backend_woken" not in st.session_state:
@@ -126,18 +129,18 @@ for msg in st.session_state.messages:
 st.markdown("---")
 
 # new change for automatic call api
-def call_api(payload):
-    for attempt in range(3):  # retry 3 times
-        try:
-            response = requests.post(API_URL, json=payload, timeout=30)
+# def call_api(payload):
+#     for attempt in range(3):  # retry 3 times
+#         try:
+#             response = requests.post(API_URL, json=payload, timeout=30)
 
-            if response.status_code == 200:
-                return response
+#             if response.status_code == 200:
+#                 return response
 
-        except requests.exceptions.RequestException:
-            time.sleep(5)  # wait before retry
+#         except requests.exceptions.RequestException:
+#             time.sleep(5)  # wait before retry
 
-    return None
+#     return None
 #new change automatically send by enter press
 # ── Text Input ────────────────────────────────────────────────────────────────
 user_input = st.text_area("type your message...")
@@ -178,8 +181,8 @@ if user_input:
 
         try:
             with st.spinner("Thinking..."):
-                #response = requests.post(API_URL, json=payload)
-                response = call_api(payload)
+                response = requests.post(API_URL, json=payload)
+                #response = call_api(payload)
 
             if response and response.status_code == 200:
 
