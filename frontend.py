@@ -17,7 +17,7 @@ HISTORY_URL = "https://ai-agent-backend-o0q4.onrender.com/history"
 import threading
 import time
 
-BASE_URL = "https://ai-agent-using-groq-1.onrender.com"
+BASE_URL = "https://ai-agent-backend-o0q4.onrender.com"
 
 def wake_backend():
     try:
