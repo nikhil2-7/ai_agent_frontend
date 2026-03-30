@@ -1,23 +1,6 @@
 import streamlit as st
 import requests
-#for backend awake 
-import time
 
-def call_api(payload):
-    for attempt in range(5):
-        try:
-            response = requests.post(API_URL, json=payload, timeout=30)
-
-            if response.status_code == 200:
-                return response
-
-        except:
-            pass
-
-        time.sleep(5)
-
-    return None
-#end
 
 # ── Page config ──────────────────────────────────────────────────────────────
 st.set_page_config(
@@ -43,7 +26,24 @@ if "backend_awake" not in st.session_state:
     threading.Thread(target=wake_backend).start()
     st.session_state.backend_awake = True
     #end
+#for backend awake 
+import time
 
+def call_api(payload):
+    for attempt in range(5):
+        try:
+            response = requests.post(API_URL, json=payload, timeout=30)
+
+            if response.status_code == 200:
+                return response
+
+        except:
+            pass
+
+        time.sleep(5)
+
+    return None
+#end
 
 # ── Session state ─────────────────────────────────────────────────────────────
 if "messages" not in st.session_state:
