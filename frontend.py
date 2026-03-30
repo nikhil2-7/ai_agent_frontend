@@ -28,9 +28,17 @@ def wake_backend():
 
 # Wake backend once when app loads
 if "backend_woken" not in st.session_state:
+        st.session_state.backend_woken = False
+
+if not st.session_state.backend_woken:
     with st.spinner("Waking up AI backend... please wait ⏳"):
-        wake_backend()
-        time.sleep(2)  # small buffer
+        
+        # Run in background
+        thread = threading.Thread(target=wake_backend)
+        thread.start()
+
+        time.sleep(2)  # small wait for UI feel (NOT blocking too long)
+
     st.session_state.backend_woken = True
 #end change
 # ── Session state ─────────────────────────────────────────────────────────────
