@@ -1,5 +1,23 @@
 import streamlit as st
 import requests
+#for backend awake 
+import time
+
+def call_api(payload):
+    for attempt in range(5):
+        try:
+            response = requests.post(API_URL, json=payload, timeout=30)
+
+            if response.status_code == 200:
+                return response
+
+        except:
+            pass
+
+        time.sleep(5)
+
+    return None
+#end
 
 # ── Page config ──────────────────────────────────────────────────────────────
 st.set_page_config(
@@ -12,19 +30,19 @@ st.set_page_config(
 API_URL = "https://ai-agent-backend-o0q4.onrender.com/chat"
 HISTORY_URL = "https://ai-agent-backend-o0q4.onrender.com/history"
 
-#new change automatic call backend
-#automatically awake bakend new feature
+#for backend awake
 import threading
-import time
-
-BASE_URL = "https://ai-agent-backend-o0q4.onrender.com"
 
 def wake_backend():
     try:
-        requests.get(BASE_URL, timeout=10)
+        requests.get("https://ai-agent-backend-o0q4.onrender.com/")
     except:
         pass
-#end 
+
+if "backend_awake" not in st.session_state:
+    threading.Thread(target=wake_backend).start()
+    st.session_state.backend_awake = True
+    #end
 
 
 # ── Session state ─────────────────────────────────────────────────────────────
@@ -35,21 +53,6 @@ if "selected_chat_index" not in st.session_state:
     st.session_state.selected_chat_index = None
 
 if "history_cache" not in st.session_state:
-    # Wake backend once when app loads
-    if "backend_woken" not in st.session_state:
-        st.session_state.backend_woken = False
-
-if not st.session_state.backend_woken:
-    with st.spinner("Waking up AI backend... please wait ⏳"):
-        
-        # Run in background
-        thread = threading.Thread(target=wake_backend)
-        thread.start()
-
-        time.sleep(2)  # small wait for UI feel (NOT blocking too long)
-
-    st.session_state.backend_woken = True
-#end change
     try:
         st.session_state.history_cache = requests.get(HISTORY_URL).json()
     except:
@@ -151,80 +154,147 @@ st.markdown("---")
 
 #     return None
 #new change automatically send by enter press
-# ── Text Input ────────────────────────────────────────────────────────────────
-user_input = st.text_area("type your message...")
-#     "Your message",
-#     placeholder="Type your message here…",
-#     height=80,
-#     label_visibility="collapsed",
-# )
-
-# col1, col2 = st.columns([5, 1])
-
-# with col1:
-#     send = st.button("📨 Send", use_container_width=True)
 
 
+# # ── Text Input ────────────────────────────────────────────────────────────────
+# user_input = st.text_area("type your message...")
+# #     "Your message",
+# #     placeholder="Type your message here…",
+# #     height=80,
+# #     label_visibility="collapsed",
+# # )
 
-# ── Handle Send ───────────────────────────────────────────────────────────────
+# # col1, col2 = st.columns([5, 1])
+
+# # with col1:
+# #     send = st.button("📨 Send", use_container_width=True)
+
+
+
+# # ── Handle Send ───────────────────────────────────────────────────────────────
+# if user_input:
+
+#     user_message = user_input.strip()
+
+#     if user_message:
+
+#         st.session_state.selected_chat_index = None
+
+#         st.session_state.messages.append({
+#             "role": "user",
+#             "text": user_message
+#         })
+
+#         payload = {
+#             "model_name": model,
+#             "model_provider": provider,
+#             "system_prompt": system_prompt,
+#             "messages": [user_message],
+#             "allow_search": web_search
+#         }
+
+#         try:
+#             with st.spinner("Thinking..."):
+#                 response = requests.post(API_URL, json=payload)
+#                 #response = call_api(payload)
+
+#             if response and response.status_code == 200:
+
+#                 data = response.json()
+
+#                 if data.get("type") == "text":
+#                     ai_reply = data.get("content", "")
+
+#                 elif data.get("type") == "image":
+#                     st.session_state.messages.append({
+#                         "role": "ai",
+#                         "text": "🖼 Image Generated Below:"
+#                     })
+#                     st.image(data.get("content"))
+#                     st.rerun()
+
+#                 else:
+#                     ai_reply = str(data)
+
+#             else:
+#                 ai_reply = "⚠️ Backend is waking up... please try again in a few seconds."#"⚠️ Backend error"
+
+#         except Exception as e:
+#             ai_reply = f"❌ Connection error: {str(e)}"
+
+#         st.session_state.messages.append({
+#             "role": "ai",
+#             "text": ai_reply
+#         })
+#         # Refresh history from backend
+#         try:
+#             st.session_state.history_cache = requests.get(HISTORY_URL).json()
+#         except:
+#             pass
+
+#         st.rerun()
+
+
+#for bakend awake
+# ── Chat Input (FIXED) ────────────────────────────────────────
+user_input = st.chat_input("Type your message...")
+
 if user_input:
-
     user_message = user_input.strip()
 
-    if user_message:
+    st.session_state.selected_chat_index = None
 
-        st.session_state.selected_chat_index = None
+    # Add user message
+    st.session_state.messages.append({
+        "role": "user",
+        "text": user_message
+    })
 
-        st.session_state.messages.append({
-            "role": "user",
-            "text": user_message
-        })
+    payload = {
+        "model_name": model,
+        "model_provider": provider,
+        "system_prompt": system_prompt,
+        "messages": [user_message],
+        "allow_search": web_search
+    }
 
-        payload = {
-            "model_name": model,
-            "model_provider": provider,
-            "system_prompt": system_prompt,
-            "messages": [user_message],
-            "allow_search": web_search
-        }
+    try:
+        with st.spinner("Thinking..."):
+            response = call_api(payload)   # ✅ use retry function
 
-        try:
-            with st.spinner("Thinking..."):
-                response = requests.post(API_URL, json=payload)
-                #response = call_api(payload)
+        if response and response.status_code == 200:
+            data = response.json()
 
-            if response and response.status_code == 200:
+            if data.get("type") == "text":
+                ai_reply = data.get("content", "")
 
-                data = response.json()
-
-                if data.get("type") == "text":
-                    ai_reply = data.get("content", "")
-
-                elif data.get("type") == "image":
-                    st.session_state.messages.append({
-                        "role": "ai",
-                        "text": "🖼 Image Generated Below:"
-                    })
-                    st.image(data.get("content"))
-                    st.rerun()
-
-                else:
-                    ai_reply = str(data)
+            elif data.get("type") == "image":
+                st.session_state.messages.append({
+                    "role": "ai",
+                    "text": "🖼 Image Generated Below:"
+                })
+                st.image(data.get("content"))
+                st.rerun()
 
             else:
-                ai_reply = "⚠️ Backend is waking up... please try again in a few seconds."#"⚠️ Backend error"
+                ai_reply = str(data)
 
-        except Exception as e:
-            ai_reply = f"❌ Connection error: {str(e)}"
+        else:
+            ai_reply = "⏳ Backend starting... please wait a few seconds."
 
-        st.session_state.messages.append({
-            "role": "ai",
-            "text": ai_reply
-        })
-        # Refresh history from backend
-        try:
-            st.session_state.history_cache = requests.get(HISTORY_URL).json()
-        except:
-            pass
+    except Exception as e:
+        ai_reply = f"❌ Connection error: {str(e)}"
 
-        st.rerun()
+    # Add AI response
+    st.session_state.messages.append({
+        "role": "ai",
+        "text": ai_reply
+    })
+
+    # Refresh history
+    try:
+        st.session_state.history_cache = requests.get(HISTORY_URL).json()
+    except:
+        pass
+
+    st.rerun()
