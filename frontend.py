@@ -12,6 +12,24 @@ st.set_page_config(
 API_URL = "https://ai-agent-backend-o0q4.onrender.com/chat"
 HISTORY_URL = "https://ai-agent-backend-o0q4.onrender.com/history"
 
+#new change automatic call backend
+import time
+
+BASE_URL = "https://ai-agent-backend-o0q4.onrender.com"
+
+def wake_backend():
+    try:
+        requests.get(BASE_URL, timeout=10)
+    except:
+        pass
+
+# Wake backend once when app loads
+if "backend_woken" not in st.session_state:
+    with st.spinner("Waking up AI backend... please wait ⏳"):
+        wake_backend()
+        time.sleep(2)  # small buffer
+    st.session_state.backend_woken = True
+#end change
 # ── Session state ─────────────────────────────────────────────────────────────
 if "messages" not in st.session_state:
     st.session_state.messages = []
@@ -85,6 +103,7 @@ with st.sidebar:
 # MAIN AREA
 # ═══════════════════════════════════════════════════════════════════════════════
 st.markdown("## 🤖 AI Assistant")
+st.caption("⚡ First response may take 15–30 seconds due to server cold start.")
 st.caption(
     "Powered by " + provider + " · " + model +
     ("  🌐 Web Search ON" if web_search else "")
@@ -106,6 +125,20 @@ for msg in st.session_state.messages:
 
 st.markdown("---")
 
+# new change for automatic call api
+def call_api(payload):
+    for attempt in range(3):  # retry 3 times
+        try:
+            response = requests.post(API_URL, json=payload, timeout=30)
+
+            if response.status_code == 200:
+                return response
+
+        except requests.exceptions.RequestException:
+            time.sleep(5)  # wait before retry
+
+    return None
+#new change automatically send by enter press
 # ── Text Input ────────────────────────────────────────────────────────────────
 user_input = st.text_area("type your message...")
 #     "Your message",
@@ -145,9 +178,10 @@ if user_input:
 
         try:
             with st.spinner("Thinking..."):
-                response = requests.post(API_URL, json=payload)
+                #response = requests.post(API_URL, json=payload)
+                response = call_api(payload)
 
-            if response.status_code == 200:
+            if response and response.status_code == 200:
 
                 data = response.json()
 
@@ -166,7 +200,7 @@ if user_input:
                     ai_reply = str(data)
 
             else:
-                ai_reply = "⚠️ Backend error"
+                ai_reply = "⚠️ Backend is waking up... please try again in a few seconds."#"⚠️ Backend error"
 
         except Exception as e:
             ai_reply = f"❌ Connection error: {str(e)}"
