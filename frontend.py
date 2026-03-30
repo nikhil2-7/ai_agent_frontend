@@ -107,22 +107,22 @@ for msg in st.session_state.messages:
 st.markdown("---")
 
 # ── Text Input ────────────────────────────────────────────────────────────────
-user_input = st.text_area(
-    "Your message",
-    placeholder="Type your message here…",
-    height=80,
-    label_visibility="collapsed",
-)
+user_input = st.text_area("type your message...")
+#     "Your message",
+#     placeholder="Type your message here…",
+#     height=80,
+#     label_visibility="collapsed",
+# )
 
-col1, col2 = st.columns([5, 1])
+# col1, col2 = st.columns([5, 1])
 
-with col1:
-    send = st.button("📨 Send", use_container_width=True)
+# with col1:
+#     send = st.button("📨 Send", use_container_width=True)
 
 
 
 # ── Handle Send ───────────────────────────────────────────────────────────────
-if send:
+if user_input:
 
     user_message = user_input.strip()
 
