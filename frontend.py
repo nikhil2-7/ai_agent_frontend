@@ -26,8 +26,17 @@ def wake_backend():
         pass
 #end 
 
-# Wake backend once when app loads
-if "backend_woken" not in st.session_state:
+
+# ── Session state ─────────────────────────────────────────────────────────────
+if "messages" not in st.session_state:
+    st.session_state.messages = []
+
+if "selected_chat_index" not in st.session_state:
+    st.session_state.selected_chat_index = None
+
+if "history_cache" not in st.session_state:
+    # Wake backend once when app loads
+    if "backend_woken" not in st.session_state:
         st.session_state.backend_woken = False
 
 if not st.session_state.backend_woken:
@@ -41,14 +50,6 @@ if not st.session_state.backend_woken:
 
     st.session_state.backend_woken = True
 #end change
-# ── Session state ─────────────────────────────────────────────────────────────
-if "messages" not in st.session_state:
-    st.session_state.messages = []
-
-if "selected_chat_index" not in st.session_state:
-    st.session_state.selected_chat_index = None
-
-if "history_cache" not in st.session_state:
     try:
         st.session_state.history_cache = requests.get(HISTORY_URL).json()
     except:
