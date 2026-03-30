@@ -32,8 +32,7 @@ import time
 def call_api(payload):
     for attempt in range(5):
         try:
-            response = call_api(payload)
-            #response = requests.post(API_URL, json=payload, timeout=30)
+            response = requests.post(API_URL, json=payload, timeout=30)
 
             if response.status_code == 200:
                 return response
