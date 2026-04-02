@@ -107,12 +107,13 @@ with st.sidebar:
                         {"role": "user", "text": chat["human"]},
                         {"role": "ai", "text": chat["ai"]}
                     ]
+                    st.rerun()
         else:
             st.caption("No previous conversations.")
 
     if st.button("Clear Screen ", use_container_width=True):
         st.session_state.messages = []
-        st.session_state.selected_chat_index = None
+        #st.session_state.selected_chat_index = None
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # MAIN AREA
@@ -140,100 +141,7 @@ for msg in st.session_state.messages:
 
 st.markdown("---")
 
-# new change for automatic call api
-# def call_api(payload):
-#     for attempt in range(3):  # retry 3 times
-#         try:
-#             response = requests.post(API_URL, json=payload, timeout=30)
-
-#             if response.status_code == 200:
-#                 return response
-
-#         except requests.exceptions.RequestException:
-#             time.sleep(5)  # wait before retry
-
-#     return None
-#new change automatically send by enter press
-
-
-# # ── Text Input ────────────────────────────────────────────────────────────────
-# user_input = st.text_area("type your message...")
-# #     "Your message",
-# #     placeholder="Type your message here…",
-# #     height=80,
-# #     label_visibility="collapsed",
-# # )
-
-# # col1, col2 = st.columns([5, 1])
-
-# # with col1:
-# #     send = st.button("📨 Send", use_container_width=True)
-
-
-
-# # ── Handle Send ───────────────────────────────────────────────────────────────
-# if user_input:
-
-#     user_message = user_input.strip()
-
-#     if user_message:
-
-#         st.session_state.selected_chat_index = None
-
-#         st.session_state.messages.append({
-#             "role": "user",
-#             "text": user_message
-#         })
-
-#         payload = {
-#             "model_name": model,
-#             "model_provider": provider,
-#             "system_prompt": system_prompt,
-#             "messages": [user_message],
-#             "allow_search": web_search
-#         }
-
-#         try:
-#             with st.spinner("Thinking..."):
-#                 response = requests.post(API_URL, json=payload)
-#                 #response = call_api(payload)
-
-#             if response and response.status_code == 200:
-
-#                 data = response.json()
-
-#                 if data.get("type") == "text":
-#                     ai_reply = data.get("content", "")
-
-#                 elif data.get("type") == "image":
-#                     st.session_state.messages.append({
-#                         "role": "ai",
-#                         "text": "🖼 Image Generated Below:"
-#                     })
-#                     st.image(data.get("content"))
-#                     st.rerun()
-
-#                 else:
-#                     ai_reply = str(data)
-
-#             else:
-#                 ai_reply = "⚠️ Backend is waking up... please try again in a few seconds."#"⚠️ Backend error"
-
-#         except Exception as e:
-#             ai_reply = f"❌ Connection error: {str(e)}"
-
-#         st.session_state.messages.append({
-#             "role": "ai",
-#             "text": ai_reply
-#         })
-#         # Refresh history from backend
-#         try:
-#             st.session_state.history_cache = requests.get(HISTORY_URL).json()
-#         except:
-#             pass
-
-#         st.rerun()
-
+#
 
 #for bakend awake
 # ── Chat Input (FIXED) ────────────────────────────────────────
